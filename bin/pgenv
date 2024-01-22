@@ -10,12 +10,12 @@ set -E
 
 # Set PGENV_ROOT only if not already set.
 if [ -z "$PGENV_ROOT" ]; then
-    PGENV_ROOT=$(dirname $(dirname $0))
+    PGENV_ROOT=$(dirname "$(dirname "$0")")
 else
     echo "Using PGENV_ROOT $PGENV_ROOT" >&2
 fi
 
-cd $PGENV_ROOT
+cd "$PGENV_ROOT" || exit
 # Always use an absolute path or configure could complain.
 PGENV_ROOT=$(pwd)
 
@@ -46,8 +46,8 @@ PGENV_RESTART_OPTIONS=()
 # Prints a debug message if PGENV_DEBUG
 # variable enabled
 pgenv_debug(){
-    if [ ! -z "$PGENV_DEBUG" ]; then
-        echo "[DEBUG] $@" >&2
+    if [ -n "$PGENV_DEBUG" ]; then
+        echo "[DEBUG] $*" >&2
     fi
 }
 
@@ -79,7 +79,7 @@ pgenv_get_downloadable_versions(){
         fi
 
             pgenv_debug "Version $version $PGENV_SED"
-            major=$( echo $version | $PGENV_SED 's/\([[:digit:]]\{1,2\}\).*/\1/' )
+            major=$( echo "$version" | $PGENV_SED 's/\([[:digit:]]\{1,2\}\).*/\1/' )
             pgenv_debug "Extracted major version [$major]"
 
             # check the version is a number!
@@ -90,10 +90,10 @@ pgenv_get_downloadable_versions(){
                 # here the major version is considered as multipled
                 # by a ten factor, so that version 10 becomes value 100
                 # while version 9.6 becomes 96
-                if [ $major -ge 10 -o $major -le 6 ]; then
+                if [ "$major" -ge 10 ] || [ "$major" -le 6 ]; then
                     minor=0
                 else
-                    minor=$( echo $version | $PGENV_SED 's/[[:digit:]]\.\([[:digit:]]\{1,2\}\).*/\1/' )
+                    minor=$( echo "$version" | $PGENV_SED 's/[[:digit:]]\.\([[:digit:]]\{1,2\}\).*/\1/' )
                 fi
                 major=$(( major * 10 + minor ))
                 pgenv_debug "Normalized major version [$major]"
@@ -107,7 +107,8 @@ pgenv_get_downloadable_versions(){
 
 pgenv_versions() {
     if [ -e "pgsql" ]; then
-        local curr=$(readlink pgsql)
+        local curr
+        curr="$(readlink pgsql)"
     fi
     local installed=0
     local flags=""
@@ -121,7 +122,8 @@ pgenv_versions() {
         if [ -z "$PGENV_SED" ]; then
             PGENV_SED=$(command -v sed)
         fi
-        local version=$( echo $dir | $PGENV_SED 's/^pgsql-//' )
+        local version
+        version="$( echo "$dir" | $PGENV_SED 's/^pgsql-//' )"
         printf "%s   %-6s    %s\n" "$flags" "$version" "$dir"
         installed=$(( installed + 1 ))
     done
@@ -134,7 +136,7 @@ pgenv_versions() {
 pgenv_help() {
 
     # get current git version if possible
-    if [ ! -z "$( command -v git )" -a -d "${PGENV_ROOT}/.git" ]; then
+    if [ -n "$( command -v git )" ] && [ -d "${PGENV_ROOT}/.git" ]; then
         git_version="[$( git -c log.showSignature=false log -n 1 --format='%h' )]"
     fi
 
@@ -197,45 +199,45 @@ pgenv_check_dependencies(){
             PGENV_MAKE=$(command -v gmake)
         fi
     fi
-    pgenv_detail_command "make" $PGENV_MAKE
+    pgenv_detail_command "make" "$PGENV_MAKE"
 
     if [ -z "$PGENV_CURL" ]; then
         PGENV_CURL=$(command -v curl)
     fi
-    pgenv_detail_command "curl" $PGENV_CURL
+    pgenv_detail_command "curl" "$PGENV_CURL"
 
     if [ -z "$PGENV_PATCH" ]; then
         PGENV_PATCH=$(command -v patch)
     fi
-    pgenv_detail_command "patch" $PGENV_PATCH
+    pgenv_detail_command "patch" "$PGENV_PATCH"
 
     if [ -z "$PGENV_TAR" ]; then
         PGENV_TAR=$(command -v tar)
     fi
-    pgenv_detail_command "tar" $PGENV_TAR
+    pgenv_detail_command "tar" "$PGENV_TAR"
 
     if [ -z "$PGENV_SED" ]; then
         PGENV_SED=$(command -v sed)
     fi
-    pgenv_detail_command "sed" $PGENV_SED
+    pgenv_detail_command "sed" "$PGENV_SED"
 
     # check for sort and tr and tail, but not place into
     # variables (do we need to push to that extent?)
-    pgenv_detail_command "sort" $(command -v sort)
-    pgenv_detail_command "tr" $(command -v tr)
-    pgenv_detail_command "tail" $(command -v tail)
+    pgenv_detail_command "sort" "$(command -v sort)"
+    pgenv_detail_command "tr" "$(command -v tr)"
+    pgenv_detail_command "tail" "$(command -v tail)"
 
     # Go back to exiting on error.
     trap 'exit' ERR
-    if [ ! -z "$verbose" ]; then
+    if [ -n "$verbose" ]; then
         # Report found dependencies only in verbose mode.
         echo -n "$present"
     fi
-    if [ ! -z "$warning" ]; then
+    if [ -n "$warning" ]; then
         # Always show warnings.
         echo -n "$warning"
     fi
-    if [ ! -z "$missing" ]; then
+    if [ -n "$missing" ]; then
         # Always show missing dependencies and exit with an error.
         echo "$missing"
         exit 1
@@ -273,9 +275,9 @@ pgenv_find_version_on_disk(){
         fi
 
         pgenv_debug "Version $version"
-        brand=$( echo $version | $PGENV_SED 's/\([[:digit:]]\{1,2\}\).*/\1/' )
-        year=$(  echo $version | $PGENV_SED 's/[[:digit:]]\{1,2\}\.\([[:digit:]]\{1,2\}\).*/\1/' )
-        patch=$( echo $version | $PGENV_SED 's/[[:digit:]]\{1,2\}\.[[:digit:]]\{1,2\}\.\{0,1\}\([[:digit:]]\{0,2\}\).*/\1/' )
+        brand=$( echo "$version" | $PGENV_SED 's/\([[:digit:]]\{1,2\}\).*/\1/' )
+        year=$(  echo "$version" | $PGENV_SED 's/[[:digit:]]\{1,2\}\.\([[:digit:]]\{1,2\}\).*/\1/' )
+        patch=$( echo "$version" | $PGENV_SED 's/[[:digit:]]\{1,2\}\.[[:digit:]]\{1,2\}\.\{0,1\}\([[:digit:]]\{0,2\}\).*/\1/' )
 
         # to avoid that version less than 10 confuses the match, let's
         # multiply the brand version by 1000
@@ -299,7 +301,7 @@ pgenv_find_version_on_disk(){
     done
 
     pgenv_debug "Version selected for [$search_for $filter] = $selected"
-    echo $selected
+    echo "$selected"
 }
 
 # Guesses the selected PostgreSQL version to use.
@@ -353,7 +355,7 @@ pgenv_input_version_or_exit() {
     local hint=$3
 
     if [ -z "$version" ]; then
-        if [ ! -z "$hint" ]; then
+        if [ -n "$hint" ]; then
             # count the versions
             local installed_versions=0
             for installed in $( ls -d pgsql-* 2>/dev/null )
@@ -366,7 +368,7 @@ pgenv_input_version_or_exit() {
         fi
 
         # if no version is installed, suggest the user to build one
-        if [ $installed_versions -eq 0 ]; then
+        if [ "$installed_versions" -eq 0 ]; then
             echo "No PostgreSQL version is installed!"
             echo "Are you looking for command \`$hint\` instead?"
             exit 1
@@ -374,7 +376,7 @@ pgenv_input_version_or_exit() {
             # at least one version is available,
             # ask more details to the user
             echo "Which version of PostgreSQL do you want?"
-            if [ ! -z "$verbose" ]; then
+            if [ -n "$verbose" ]; then
                 pgenv_versions
             fi
             exit 1
@@ -429,8 +431,9 @@ pgenv_current_postgresql_version(){
     if [ -z "$PGENV_SED" ]; then
         PGENV_SED=$(command -v sed)
     fi
-    local v=$( readlink pgsql | $PGENV_SED 's/^pgsql-//' )
-    echo $v
+    local v
+    v="$( readlink pgsql | $PGENV_SED 's/^pgsql-//' )"
+    echo "$v"
 }
 
 # Provides the configuration file name
@@ -453,14 +456,14 @@ pgenv_configuration_file_name(){
 
     # if the user has defined an environment variable PGENV_CONFIGURATION_FILE
     # I need to use that instead of trying to understand which file to use
-    if [ ! -z "$PGENV_CONFIGURATION_FILE" -a -z "$skip_env" ]; then
+    if [ -n "$PGENV_CONFIGURATION_FILE" ] && [ -z "$skip_env" ]; then
 	pgenv_debug "Configuration file forced by environment variable PGENV_CONFIGURATION_FILE = $PGENV_CONFIGURATION_FILE"
 	echo "${PGENV_CONFIGURATION_FILE}"
 	return
     fi
 
 
-    if [ ! -z "$v" ]; then
+    if [ -n "$v" ]; then
         echo "${PGENV_CONFIG_ROOT}/$v.conf"
     else
         echo "${PGENV_DEFAULT_CONFIG_FILE}"
@@ -478,15 +481,16 @@ pgenv_configuration_dump_or_exit(){
     local v=$1
     local title=$2
 
-    local CONF=$( pgenv_configuration_file_name $v )
+    local CONF
+    CONF="$( pgenv_configuration_file_name "$v" )"
 
-    if [ -r $CONF ]; then
+    if [ -r "$CONF" ]; then
 
         echo "# $title"
         echo "# pgenv configuration for PostgreSQL $v"
         echo "# File: $CONF"
         echo "# ---------------------------------------------------"
-        cat $CONF
+        cat "$CONF"
         echo
     else
         echo "No configuration found for version <$title> [$CONF]" >&2
