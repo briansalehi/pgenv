@@ -1,4 +1,5 @@
 /pgsql*
-/src/
+/build/
 /.pgenv.*
 /config/
+/tags
