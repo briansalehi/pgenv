@@ -1,10 +1,11 @@
 #include <pgenv/pgenv.hpp>
-#include <pgenv/arguments_parser.hpp>
+#include <pgenv/argument_parser.hpp>
 #include <ostream>
 
-using namespace pg;
+namespace pg
+{
 
-arguments_parser::arguments_parser(int argc, char** argv):
+argument_parser::argument_parser(int argc, char** argv):
     user_options("The pgenv commands are")
 {
     user_options.add_options()
@@ -148,7 +149,7 @@ arguments_parser::arguments_parser(int argc, char** argv):
     }
 }
 
-void arguments_parser::set_command(std::string_view command)
+void argument_parser::set_command(std::string_view command)
 {
     if      (command == "use")       { selected_command = commands::use_command; }
     else if (command == "start")     { selected_command = commands::start_command; }
@@ -170,9 +171,7 @@ void arguments_parser::set_command(std::string_view command)
     else if (command == "log")       { selected_command = commands::log_command; }
 }
 
-namespace pg
-{
-std::ostream& operator<<(std::ostream& buffer, arguments_parser const& options)
+std::ostream& operator<<(std::ostream& buffer, argument_parser const& options)
 {
     buffer << "Usage: pgenv <command> [<args>]\n\n";
     buffer << options.user_options << '\n';
@@ -181,4 +180,5 @@ std::ostream& operator<<(std::ostream& buffer, arguments_parser const& options)
     buffer << "This is 'pgenv' version " << pgenv_version;
     return buffer;
 }
+
 } // pg

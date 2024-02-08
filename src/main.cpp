@@ -3,7 +3,17 @@
 
 int main(int argc, char** argv)
 {
-    pg::arguments_parser options{argc, argv};
-    pg::executor executor{};
-    executor.run(options);
+    try
+    {
+        pg::argument_parser options{argc, argv};
+        pg::executor executor{};
+        executor.run(options);
+    }
+    catch (std::exception const& exp)
+    {
+        std::cerr << exp.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }

@@ -1,8 +1,9 @@
 #include <pgenv/executor.hpp>
 
-using namespace pg;
+namespace pg
+{
 
-void executor::run(arguments_parser const& parser)
+void executor::run(argument_parser const& parser)
 {
     switch (parser.selected_command)
     {
@@ -27,6 +28,7 @@ void executor::run(arguments_parser const& parser)
         case pg::commands::remove_command:
             break;
         case pg::commands::version_command:
+            check_installation(parser.option_value);
             break;
         case pg::commands::current_command:
             break;
@@ -47,3 +49,22 @@ void executor::run(arguments_parser const& parser)
             std::cout << parser << std::endl;
     }
 }
+
+void executor::execute_version()
+{
+}
+
+void executor::check_installation(std::string_view version) const
+{
+}
+
+void executor::check_usage(std::string_view version) const
+{
+}
+
+std::vector<std::string> executor::installed_instances() const
+{
+    return {};
+}
+
+} // pg

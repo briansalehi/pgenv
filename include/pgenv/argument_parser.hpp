@@ -3,23 +3,21 @@
 #include <pgenv/common.hpp>
 #include <boost/program_options.hpp>
 
-#include <string_view>
-#include <iostream>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <string_view>
 
 namespace pg
 {
 
-enum class commands;
-
-class arguments_parser
+class argument_parser
 {
 public:
-    arguments_parser(int argc, char** argv);
+    argument_parser(int argc, char** argv);
 
     void set_command(std::string_view command);
-    friend std::ostream& operator<<(std::ostream&, arguments_parser const&);
+    friend std::ostream& operator<<(std::ostream&, argument_parser const&);
 
 private:
     boost::program_options::options_description user_options;

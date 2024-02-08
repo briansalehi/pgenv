@@ -4,14 +4,16 @@ project(pgenv LANGUAGES CXX VERSION 1.4.0 DESCRIPTION "PostgreSQL Binary Manager
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 find_package(Boost COMPONENTS program_options system)
 
 list(APPEND source_files
     src/main.cpp
-    src/arguments_parser.cpp
+    src/argument_parser.cpp
     src/executor.cpp
+    src/exception.cpp
 )
 
 add_executable(pgenv ${source_files})

@@ -3,3 +3,4 @@
 /.pgenv.*
 /config/
 /tags
+/.cache/
